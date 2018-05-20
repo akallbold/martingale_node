@@ -5,8 +5,7 @@ class Inputs extends React.Component {
   // currentResults = this.props.gameStats[this.props.gameStats.length-1]
 
   render(){
-    // debugger
-    // let currentResults = this.props.gameStats[this.props.gameStats.length-1]
+console.log(this.props.probOfWin)
     return  (
       <div className = "col s6">
         <div className= "inputs  border">
@@ -30,7 +29,7 @@ class Inputs extends React.Component {
           <h5>Results</h5>
           <h6>{this.props.gameStats.length > 0 ? this.props.gameStats[this.props.gameStats.length-1].gameWin ? "You Won!" : "Yikes! You Lost :(" : "Press Run Button to Start"}</h6>
           <h6> Total Number of Spins: {this.props.gameStats.length > 0 ? this.props.gameStats[this.props.gameStats.length-1].numOfSpins : 0}</h6>
-          <h6> Probability of Winning: {this.props.probOfWin}</h6>
+          <h6> Probability of Winning: {this.props.probOfWin === NaN ? "a little less than 100%" : this.props.probOfWin}</h6>
         </div>
       </div>
     )
