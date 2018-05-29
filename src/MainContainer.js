@@ -26,8 +26,6 @@ class MainContainer extends React.Component {
   handleMaxInvestment = (event) => {this.setState({maxInvestment: event.target.value}), this.determineProb}
   handleBet = (event) => {this.setState({bet: event.target.value}), this.determineProb}
 
-  //run this when inputs changed instead of when start button pressed
-
   //probability helper fuctions
   getBaseLog = (x, y) => {
     return Math.log(y) / Math.log(x);
@@ -42,33 +40,32 @@ class MainContainer extends React.Component {
       return (n * this.factorial(n - 1));
   }
 }
-
+    //run this when inputs changed instead of when start button pressed
   determineProb = () => {
     this.probOfWin = 0
     let winsNeededForGoal = Math.ceil(this.state.goal/this.state.bet)
-    console.log("wins needed", winsNeededForGoal)
-
     let lossesNeededForGameOver = Math.floor(this.getBaseLog(2,(this.state.maxInvestment/this.state.bet)))
-    console.log("losses needed", lossesNeededForGameOver)
-    //now we calculate the probability that you will spin your wins needed before you spin your losses needed IN A ROW.
+    //now we calculate the probability that we will spin our wins needed before we spin our losses needed IN A ROW.
 
-    //first we find the probability of losing x times in a row (resulting in losing your maxInvestment)
-
+    //first we find the probability of losing x times in a row (resulting in losing our maxInvestment)
     let probOfLosingInARow= Math.pow(.53,lossesNeededForGameOver)
-    console.log("probOfLosingInARow", probOfLosingInARow)
 
-    //given probOfLosingInARow, we can find the median number of spins needed to reach probOfLosingInARow. I am using probOfLosingInARow here instead of probOfLosingOnce and demonstrating that we only need to experience probOfLosingInARow once to replicate the "lose x times in a row scenario"
-
+    //given probOfLosingInARow, we can find the median number of spins needed to reach probOfLosingInARow. We are using probOfLosingInARow here instead of probOfLosingOnce (53%) and demonstrating that we only need to experience probOfLosingInARow once to replicate the "lose x times in a row scenario"
     let averageSpinsForLoss = 1/probOfLosingInARow
-    console.log("spinsforloss", averageSpinsForLoss)
 
-    //we now have the average spins for a loss and need to calculate, what is the probability that I will win winNeededForGoal times before I hit the average spins needed to result in a loss.
+    //we now have the average spins for a loss and need to calculate, what is the probability that we will win winNeededForGoal times before we hit the average spins needed to result in a loss.
 
-    //using negative binomial distribution I can find the probability that I will win the game in winsNeededForGoal to averageSpinsForLoss times. I will then sum these probabilities to get the probability that I will spin enough wins to win the game before I get to the average amount of times it takes to lose the game.
+    //using negative binomial distribution we can find the probability that we will win the game in a specific spin. We can then sum these probabilities to get the probability that we will spin enough wins to win the game before we get to the average amount of times it takes to lose the game. If our averageSpinsForLoss is less than our winsNeededForGoal then we find the inverse (1-probability).
 
-    for (let i = winsNeededForGoal; i <= averageSpinsForLoss; i++){
-      this.probOfWin += (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
-      console.log("prob and index", this.probOfWin ,i)
+    if (winsNeededForGoal > averageSpinsForLoss){
+      this.probOfWin = 1
+      for (let i = 0; i<=winsNeededForGoal; i++){
+        this.probOfWin -= (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
+      }
+    } else {
+      for (let i = winsNeededForGoal; i <= averageSpinsForLoss; i++){
+        this.probOfWin += (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
+      }
     }
     return this.probOfWin
   }
