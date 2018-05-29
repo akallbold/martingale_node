@@ -29,7 +29,7 @@ console.log(this.props.probOfWin)
           <h5>Results</h5>
           <h6>{this.props.gameStats.length > 0 ? this.props.gameStats[this.props.gameStats.length-1].gameWin ? "You Won!" : "Yikes! You Lost :(" : "Press Run Button to Start"}</h6>
           <h6> Total Number of Spins: {this.props.gameStats.length > 0 ? this.props.gameStats[this.props.gameStats.length-1].numOfSpins : 0}</h6>
-          <h6> Probability of Winning: {this.props.probOfWin === NaN ? "a little less than 100%" : this.props.probOfWin}</h6>
+          <h6> Probability of Winning: {isNaN(this.props.probOfWin) ? "error" : this.props.probOfWin}</h6>
         </div>
       </div>
     )

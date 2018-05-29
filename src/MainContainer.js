@@ -9,7 +9,7 @@ class MainContainer extends React.Component {
   redNums = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
   blackNums = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
   greenNums = [0,37];
-  probOfWin = 0;
+  // probOfWin = 0;
 
   state = {
     colorChoice: "red",
@@ -17,14 +17,15 @@ class MainContainer extends React.Component {
     maxInvestment: 1000,
     bet: 10,
     gameWin: null,
-    gameStats: []
+    gameStats: [],
+    probOfWin:0
   }
 
   handleRed = () => {this.setState({colorChoice: "red"})}
   handleBlack = () => {this.setState({colorChoice: "black"})}
-  handleGoal = (event) => {this.setState({goal: event.target.value}), this.determineProb}
-  handleMaxInvestment = (event) => {this.setState({maxInvestment: event.target.value}), this.determineProb}
-  handleBet = (event) => {this.setState({bet: event.target.value}), this.determineProb}
+  handleGoal = (event) => this.setState({goal: event.target.value, probOfWin:this.determineProb()})
+  handleMaxInvestment = (event) => this.setState({maxInvestment: event.target.value, probOfWin:this.determineProb()})
+  handleBet = (event) => this.setState({bet: event.target.value, probOfWin:this.determineProb()})
 
   //probability helper fuctions
   getBaseLog = (x, y) => {
@@ -42,7 +43,7 @@ class MainContainer extends React.Component {
 }
     //run this when inputs changed instead of when start button pressed
   determineProb = () => {
-    this.probOfWin = 0
+    let probOfWin
     let winsNeededForGoal = Math.ceil(this.state.goal/this.state.bet)
     let lossesNeededForGameOver = Math.floor(this.getBaseLog(2,(this.state.maxInvestment/this.state.bet)))
     //now we calculate the probability that we will spin our wins needed before we spin our losses needed IN A ROW.
@@ -58,16 +59,19 @@ class MainContainer extends React.Component {
     //using negative binomial distribution we can find the probability that we will win the game in a specific spin. We can then sum these probabilities to get the probability that we will spin enough wins to win the game before we get to the average amount of times it takes to lose the game. If our averageSpinsForLoss is less than our winsNeededForGoal then we find the inverse (1-probability).
 
     if (winsNeededForGoal > averageSpinsForLoss){
-      this.probOfWin = 1
+      probOfWin = 1
       for (let i = 0; i<=winsNeededForGoal; i++){
-        this.probOfWin -= (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
+        probOfWin -= (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
       }
+        this.setState({probOfWin:probOfWin})
     } else {
+      probOfWin = 0
       for (let i = winsNeededForGoal; i <= averageSpinsForLoss; i++){
-        this.probOfWin += (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
+        probOfWin += (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
       }
+        this.setState({probOfWin:probOfWin})
     }
-    return this.probOfWin
+    return probOfWin
   }
 
 
@@ -135,7 +139,7 @@ class MainContainer extends React.Component {
                             colorChoice: this.state.colorChoice,
                             highestBet: highestBet,
                             pocket: pocket,
-                            probOfWin: this.probOfWin,
+                            probOfWin: this.state.probOfWin,
                             currentGameSpins: currentGameSpins})
     } else if ((this.state.goal <= pocket)){
       return              ({ gameWin: true,
@@ -146,7 +150,7 @@ class MainContainer extends React.Component {
                             colorChoice: this.state.colorChoice,
                             highestBet: highestBet,
                             pocket: pocket,
-                            probOfWin: this.probOfWin,
+                            probOfWin: this.state.probOfWin,
                             currentGameSpins: currentGameSpins})
     } else {
       console.log("game on")
@@ -251,7 +255,7 @@ createChartData = () => {
                   handleMaxInvestment={this.handleMaxInvestment}
                   handleBet={this.handleBet}
                   startGame={this.startGame}
-                  probOfWin={this.probOfWin}
+                  probOfWin={this.state.probOfWin}
           />
           <ChartComponent className = "col s6"
                           gameStats = {this.state.gameStats}
