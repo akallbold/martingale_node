@@ -27,20 +27,27 @@ class MainContainer extends React.Component {
   handleMaxInvestment = (event) => this.setState({maxInvestment: event.target.value, probOfWin:this.determineProb()})
   handleBet = (event) => this.setState({bet: event.target.value, probOfWin:this.determineProb()})
 
+  componentDidMount(){
+    // fetch chart data
+  }
+
+
+
+
   //probability helper fuctions
   getBaseLog = (x, y) => {
     return Math.log(y) / Math.log(x);
   }
 
   factorial(n) {
-  if (n < 0)
-        return "error";
-  else if (n === 0)
+    if (n < 0) {
+      return "error";
+    } else if (n === 0) {
       return 1;
-  else {
-      return (n * this.factorial(n - 1));
+    } else {
+        return (n * this.factorial(n - 1));
+    }
   }
-}
 
   determineProb = () => {
     let probOfWin
@@ -74,11 +81,10 @@ class MainContainer extends React.Component {
     return probOfWin
   }
 
-
   //////////////////////////////////////////////////////////////////////////////////////////
 
   startGame = () => {
-    this.determineProb()
+    // this.determineProb()
     this.run()
   }
 
