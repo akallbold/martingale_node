@@ -41,7 +41,7 @@ class MainContainer extends React.Component {
       return (n * this.factorial(n - 1));
   }
 }
-    //run this when inputs changed instead of when start button pressed
+
   determineProb = () => {
     let probOfWin
     let winsNeededForGoal = Math.ceil(this.state.goal/this.state.bet)
@@ -63,13 +63,13 @@ class MainContainer extends React.Component {
       for (let i = 0; i<=winsNeededForGoal; i++){
         probOfWin -= (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
       }
-        this.setState({probOfWin:probOfWin})
+        // this.setState({probOfWin:probOfWin})
     } else {
       probOfWin = 0
       for (let i = winsNeededForGoal; i <= averageSpinsForLoss; i++){
         probOfWin += (this.factorial(i-1)/(this.factorial((i-1)-(winsNeededForGoal-1))*this.factorial(winsNeededForGoal-1))) * Math.pow(.47,winsNeededForGoal) * Math.pow(.53,(i-winsNeededForGoal))
       }
-        this.setState({probOfWin:probOfWin})
+        // this.setState({probOfWin:probOfWin})
     }
     return probOfWin
   }
