@@ -25,9 +25,8 @@ class Table extends React.Component {
   render(){
     // debugger
     return  (
-      <div className = "col s12">
-
-        <table className = "striped centered responsive-table">
+      <div className= "col s12">
+        <table className= "striped centered responsive-table">
           <thead>
             <tr>
               <th>Spin</th>
@@ -37,10 +36,8 @@ class Table extends React.Component {
               <th>Pocket</th>
             </tr>
           </thead>
-
           <tbody>
             {this.props.gameStats.length > 0 ? this.createRows() : ""}
-
           </tbody>
         </table>
 

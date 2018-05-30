@@ -3,7 +3,8 @@ var router = express.Router();
 const {Spin} = require('../db/models')
 
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  Spin.all()
+  .then(result => res.json(result))
 });
 
 router.post('/', function(req, res, next) {

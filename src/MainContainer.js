@@ -5,12 +5,10 @@ import Table from "./Table"
 
 class MainContainer extends React.Component {
 
-//lifetime variables
+//variables
   redNums = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36];
   blackNums = [2,4,6,8,10,11,13,15,17,20,22,24,26,28,29,31,33,35];
   greenNums = [0,37];
-  // probOfWin = 0;
-
   state = {
     colorChoice: "red",
     goal: 100,
@@ -18,27 +16,22 @@ class MainContainer extends React.Component {
     bet: 10,
     gameWin: null,
     gameStats: [],
-    probOfWin:0
+    probOfWin:0,
+    lifetimeGameStats: [],
+    lifetimeSpinStats: []
   }
 
+//onChange functions
   handleRed = () => {this.setState({colorChoice: "red"})}
   handleBlack = () => {this.setState({colorChoice: "black"})}
   handleGoal = (event) => this.setState({goal: event.target.value, probOfWin:this.determineProb()})
   handleMaxInvestment = (event) => this.setState({maxInvestment: event.target.value, probOfWin:this.determineProb()})
   handleBet = (event) => this.setState({bet: event.target.value, probOfWin:this.determineProb()})
 
-  componentDidMount(){
-    // fetch chart data
-  }
-
-
-
-
-  //probability helper fuctions
+//probability fuctions
   getBaseLog = (x, y) => {
     return Math.log(y) / Math.log(x);
   }
-
   factorial(n) {
     if (n < 0) {
       return "error";
@@ -48,7 +41,6 @@ class MainContainer extends React.Component {
         return (n * this.factorial(n - 1));
     }
   }
-
   determineProb = () => {
     let probOfWin
     let winsNeededForGoal = Math.ceil(this.state.goal/this.state.bet)
@@ -81,13 +73,7 @@ class MainContainer extends React.Component {
     return probOfWin
   }
 
-  //////////////////////////////////////////////////////////////////////////////////////////
-
-  startGame = () => {
-    // this.determineProb()
-    this.run()
-  }
-
+//game functions
   run = () => {
     let pocket = 0;
     let currentSpin = null;
@@ -131,9 +117,6 @@ class MainContainer extends React.Component {
       this.fetchGameResults(gameResults, currentGameSpins)
     }
   }
-
-
-
   gameOver = (currentBet, pocket, spins, currentGameSpins, highestBet) => {
     if (currentBet >= this.state.maxInvestment){
       return
@@ -163,6 +146,64 @@ class MainContainer extends React.Component {
       return false
     }
   }
+  spin = () => {
+    return Math.floor(Math.random() * Math.floor(37))
+  }
+  colorOfSpin = (currentSpin) => {
+    if (this.redNums.includes(currentSpin)){
+      return "red"
+    } else if (this.blackNums.includes(currentSpin)){
+      return "black"
+    } else if (this.greenNums.includes(currentSpin)){
+      return "green"
+    } else {
+      return "error"
+    }
+  }
+  win = (colorOfSpin) => {
+    if (this.state.colorChoice === "red" && colorOfSpin === "red"){
+      return true
+    } else if (this.state.colorChoice === "black" && colorOfSpin === "black"){
+      return true
+    } else {
+      return false
+    }
+  }
+
+//page functions
+  componentDidMount(){
+    this.fetchGetGameResults()
+    this.fetchGetSpinResults()
+  }
+
+  startGame = () => {
+    this.run()
+  }
+
+  fetchGetGameResults = () => {
+    fetch('http://localhost:3000/games', {
+      headers: {"Access-Control-Allow-Origin":'*',
+                "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => { this.setState({lifetimeGameStats: data})
+    console.log(data)
+  })
+  }
+
+  fetchGetSpinResults = () => {
+    fetch('http://localhost:3000/spins', {
+      headers: {"Access-Control-Allow-Origin":'*',
+                "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      this.setState({lifetimeSpinStats: data})
+      console.log(data)
+    })
+  }
 
   fetchGameResults = (gameResults, currentGameSpins) => {
     fetch('http://localhost:3000/games', {
@@ -175,76 +216,55 @@ class MainContainer extends React.Component {
     .catch(error => console.log(error))
   }
 
-  fetchSpinResults = (data, currentGameSpins) => {
+  fetchSpinResults = (gameData, currentGameSpins) => {
     console.log("in fetch spins FE")
     fetch('http://localhost:3000/spins', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        gameId: data.id,
+        gameId: gameData.id,
         currentGameSpins: currentGameSpins
         })
     })
-    // .then(response => console.log(response.json()))
-    // .then(data => console.log(data))
+    .then(response => response.json())
+    .then(data => {
+       this.setState({
+        lifetimeGameStats: [...this.state.lifetimeGameStats, gameData],
+        lifetimeSpinStats: [...this.state.lifetimeSpinStats, data]
+      })
+    })
     .catch(error => console.log(error))
   }
 
-  spin = () => {
-    return Math.floor(Math.random() * Math.floor(37))
-  }
+  lifetimeRBGStats = () => {
+    let output = {red: 0, black: 0, green: 0}
 
-  colorOfSpin = (currentSpin) => {
-    if (this.redNums.includes(currentSpin)){
-      return "red"
-    } else if (this.blackNums.includes(currentSpin)){
-      return "black"
-    } else if (this.greenNums.includes(currentSpin)){
-      return "green"
-    } else {
-      return "error"
-    }
-  }
-
-  win = (colorOfSpin) => {
-    if (this.state.colorChoice === "red" && colorOfSpin === "red"){
-      return true
-    } else if (this.state.colorChoice === "black" && colorOfSpin === "black"){
-      return true
-    } else {
-      return false
-    }
-  }
-
-////////////////////////////////////////////////////////////////////////////////////////////
-lifetimeRBGStats = () => {
-  let output = {red: 0, black: 0, green: 0}
-
-  this.state.gameStats.forEach(game => {
-    game.currentGameSpins.forEach(spin => {
-      output[spin[0].resultCol]++
+    this.state.gameStats.forEach(game => {
+      game.currentGameSpins.forEach(spin => {
+        output[spin[0].resultCol]++
+      })
     })
-  })
-  // console.log(output)
-  return output
-}
+    // console.log(output)
+    return output
+  }
 
-createChartData = () => {
-  let rbg = this.lifetimeRBGStats()
-  let chartData = {labels: ["RED", "BLACK", "GREEN"],
-                   datasets: [
-                     {
-                       data: [rbg.red, rbg.black, rbg.green],
-                       backgroundColor: ["#E0080B", "#000000", "#016D29"]
+  createChartData = () => {
+    let rbg = this.lifetimeRBGStats()
+    let chartData = {labels: ["RED", "BLACK", "GREEN"],
+                     datasets: [
+                       {
+                         data: [rbg.red, rbg.black, rbg.green],
+                         backgroundColor: ["#E0080B", "#000000", "#016D29"]
 
-                     }
-                   ]
-                  }
-  return chartData
-}
+                       }
+                     ]
+                    }
+    return chartData
+  }
 
-////////////////////////////////////////////////////////////////////////////////////////////
   render(){
+    console.log("lifetime game", this.state.lifetimeGameStats)
+    console.log("lifetime spin", this.state.lifetimeSpinStats)
     return (
       <div className= "container">
         <div className= "row">

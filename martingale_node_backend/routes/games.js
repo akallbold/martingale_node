@@ -3,11 +3,11 @@ var router = express.Router();
 const {Game} = require('../db/models')
 
 router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
+  Game.all()
+  .then(result => res.json(result))
 });
 
 router.post('/', function(req, res, next) {
-  console.log("games req.body", req.body)
   Game.create({
     bet:req.body.bet,
     win: req.body.gameWin,

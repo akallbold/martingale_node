@@ -5,7 +5,6 @@ class Inputs extends React.Component {
   // currentResults = this.props.gameStats[this.props.gameStats.length-1]
 
   render(){
-console.log(this.props.probOfWin)
     return  (
       <div className = "col s6">
         <div className= "inputs  border">
