@@ -206,6 +206,7 @@ class MainContainer extends React.Component {
   }
 
   fetchGameResults = (gameResults, currentGameSpins) => {
+    console.log("in fetch game")
     fetch('http://localhost:3000/games', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -217,7 +218,7 @@ class MainContainer extends React.Component {
   }
 
   fetchSpinResults = (gameData, currentGameSpins) => {
-    console.log("in fetch spins FE")
+    console.log("in fetch spin")
     fetch('http://localhost:3000/spins', {
       method: "POST",
       headers: { "Content-Type": "application/json" },
